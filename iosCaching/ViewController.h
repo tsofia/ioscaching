@@ -7,9 +7,14 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <Parse/Parse.h>
+#import "Globals.h"
 
 @interface ViewController : UIViewController
 
+@property (strong, nonatomic) IBOutlet UITextField *emailInsertTextField;
+@property (strong, nonatomic) IBOutlet UITextField *pwdInsertTextField;
+- (IBAction)loginBtnPressed:(UIButton *)sender;
 
 @end
 
