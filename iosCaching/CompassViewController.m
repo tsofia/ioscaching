@@ -15,9 +15,14 @@
 
 @implementation CompassViewController
 
+double radians_overlay;
+
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view from its nib.
+    
+    [self.underlay setTranslatesAutoresizingMaskIntoConstraints:YES];
+    [self.overlay setTranslatesAutoresizingMaskIntoConstraints:YES];
+    
     self.locationManager = [[CLLocationManager alloc] init];
     self.currentHeading = [[CLHeading alloc] init];
     self.locationManager.desiredAccuracy = kCLLocationAccuracyBest;
@@ -28,8 +33,8 @@
     CLLocationCoordinate2D myLocation = temp.coordinate;
     
     CLLocationCoordinate2D cacheLocation = CLLocationCoordinate2DMake(self.cacheLocation.latitude, self.cacheLocation.longitude);
-    double radians_overlay = [self getHeadingForDirectionFromCoordinate:myLocation toCoordinate:cacheLocation];
-    self.overlay.transform = CGAffineTransformMakeRotation(-radians_overlay);
+    radians_overlay = [self getHeadingForDirectionFromCoordinate:myLocation toCoordinate:cacheLocation];
+    NSLog(@"%f", radians_overlay);
 }
 
 - (void)didReceiveMemoryWarning {
@@ -55,11 +60,17 @@
 -(void) locationManager:(CLLocationManager *)manager didUpdateHeading:(CLHeading *)newHeading   {
     self.currentHeading = newHeading;
     double degrees = newHeading.magneticHeading;
-    self.headingLabel.text = [NSString stringWithFormat:@"%d", (int) degrees];
     
+    CLLocation* myLocation = [self.locationManager location];
+    CLLocation* cacheLocation = [[CLLocation alloc] initWithLatitude:self.cacheLocation.latitude longitude:self.cacheLocation.longitude];
+    CLLocationDistance distance = [myLocation distanceFromLocation: cacheLocation];
+    self.headingLabel.text = [NSString stringWithFormat:@"%d", (int)distance];
     double radians = degrees * M_PI / 180;
-    self.underlay.transform = CGAffineTransformMakeRotation(-radians);
-    self.overlay.transform = CGAffineTransformMakeRotation(-radians);
+    CGAffineTransform transformU = CGAffineTransformRotate(CGAffineTransformIdentity, -radians);
+    self.underlay.transform = transformU;
+    double angle = radians_overlay - radians;
+    CGAffineTransform transformO = CGAffineTransformRotate(CGAffineTransformIdentity, angle);
+    self.overlay.transform = transformO;
     
 }
 
